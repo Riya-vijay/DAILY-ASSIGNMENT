@@ -1,0 +1,63 @@
+# day1_assignment_customer.py
+
+# 📦 Import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.set(style='whitegrid')  # Set Seaborn style
+
+# 📥 Step 1: Load dataset
+df = pd.read_csv('Wholesale_Customers_Data.csv')  # Replace with your CSV path
+print("🔹 First 5 rows of the dataset:")
+print(df.head())
+
+# 🧹 Step 2: Preliminary Cleaning
+# 1. Check for missing values
+print("\n🔹 Missing values in each column:")
+print(df.isnull().sum())
+
+# 2. Fill missing values with median where applicable
+for col in ['Fresh', 'Milk', 'Grocery', 'Frozen', 'Detergents_Paper', 'Delicassen']:
+    if df[col].isnull().sum() > 0:
+        df[col].fillna(df[col].median(), inplace=True)
+
+# 3. Convert data types
+df['Channel'] = df['Channel'].astype(str)
+df['Region'] = df['Region'].astype(str)
+
+# 🔧 Step 3: Simple Transformation
+# Create a new feature: total spending
+df['Total_Spend'] = df[['Fresh', 'Milk', 'Grocery', 'Frozen', 'Detergents_Paper', 'Delicassen']].sum(axis=1)
+
+# 📊 Step 4: Visualizations
+
+# 1️⃣ Distribution of Total Spending
+plt.figure(figsize=(8, 5))
+sns.histplot(df['Total_Spend'], bins=40, kde=True, color='skyblue')
+plt.title('Distribution of Total Spending')
+plt.xlabel('Total Spend')
+plt.ylabel('Count')
+plt.tight_layout()
+plt.show()
+
+# 2️⃣ Milk vs. Grocery Spend
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x='Milk', y='Grocery', data=df, color='orange')
+plt.title('Milk vs Grocery Spend')
+plt.xlabel('Milk')
+plt.ylabel('Grocery')
+plt.tight_layout()
+plt.show()
+
+# 3️⃣ Average Total Spend by Channel
+avg_channel_spend = df.groupby('Channel')['Total_Spend'].mean()
+
+plt.figure(figsize=(8, 5))
+sns.barplot(x=avg_channel_spend.index, y=avg_channel_spend.values, palette='viridis')
+plt.title('Average Total Spend by Channel')
+plt.xlabel('Channel')
+plt.ylabel('Average Spend')
+plt.tight_layout()
+plt.show()
